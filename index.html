@@ -195,6 +195,7 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 <section><h2>Notificações push</h2>
 <p class="mute" style="margin:0 0 8px">Avisos no iPhone quando cai uma venda. Abre o site pelo ícone do ecrã principal para ativar.</p>
 <div class="row"><button class="add" id="pn">🔔 Ativar notificações</button><button class="add g" id="pt" style="flex:0 0 auto">Teste</button></div>
+<div class="row"><button class="add g" id="tn">🔔 Testar notificação do site</button></div>
 <div class="row"><button class="add g" id="sn">🔊 Testar o som (som.mp3)</button></div>
 <p class="mute" style="margin:0 0 8px">O som toca no site, quando está aberto e cai uma venda. Para o mudar, envia um ficheiro som.mp3 para o GitHub.</p>
 <p class="mute" id="ps"></p></section>
@@ -212,7 +213,7 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 <div class="row"><button class="add g" id="rm">Apagar tudo</button></div>
 <p class="mute" id="msg"></p></section>
 </div>
-<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 26</p>
+<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 27</p>
 </main>
 <div id="nt"></div>
 <script>
@@ -449,6 +450,8 @@ $("ca").onclick=function(){var n=$("cn").value.trim();if(!n)return;cfg.camps=cfg
 $("camp").oninput=function(){var c=(cfg.camps||[]).find(function(x){return x.nome===$("camp").value});if(c&&c.prod&&!$("prod").value)$("prod").value=c.prod};
 $("mbtn").onclick=function(){if(!wsec()){$("mst").textContent="Liga primeiro as vendas automáticas (palavra-passe).";return}cfg.meta=true;save();$("mst").textContent="A ligar…";msync()};
 $("cper").onclick=function(e){var q=e.target.dataset.q;if(!q)return;perC=q;[].forEach.call($("cper").children,function(b){b.classList.toggle("on",b.dataset.q===q)});renderCmp()};
+var tIdx=0;
+$("tn").onclick=function(){var L=[function(){toast(vary("auto",{v:kz(5500)}),{som:1});boom()},function(){toast(vary("anuncio",{v:"$12.50"}))},function(){toast(vary("despesa",{v:kz(3000)}))},function(){toast(vary("ativo",{v:kz(20000)}))},function(){toast(vary("marco",{v:kz(100000)}),{som:1});boom()}];L[tIdx%L.length]();tIdx++};
 $("th").onclick=function(){var d=document.documentElement,n=d.dataset.theme==="light"?"dark":"light";d.dataset.theme=n;try{localStorage.setItem("fluxo-th",n)}catch(e){}};
 $("pf").onchange=renderPainel;
 $("rep").onclick=function(){var l=data.filter(function(x){return String(x.id).indexOf("wh_")!==0&&x.type!=="despesa"&&x.type!=="ativo"}).pop();if(!l)return;edit(l);ed=null;toast("Último registo copiado: ajusta e guarda")};
