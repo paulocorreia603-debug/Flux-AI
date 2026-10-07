@@ -100,12 +100,13 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 @keyframes nsh{to{transform:translateX(100%)}}
 .nc.ok{background:linear-gradient(120deg,rgba(12,64,38,.97),rgba(18,22,20,.97))}.nc.ad{background:linear-gradient(120deg,rgba(70,50,8,.97),rgba(18,22,20,.97))}.nc.out{background:linear-gradient(120deg,rgba(74,20,16,.97),rgba(18,22,20,.97))}.nc.in{background:linear-gradient(120deg,rgba(14,42,76,.97),rgba(18,22,20,.97))}.nc.warn{background:linear-gradient(120deg,rgba(76,44,10,.97),rgba(18,22,20,.97))}
 .nc .ni{box-shadow:0 0 18px -4px var(--c);font-size:24px}.nb span{font-size:23px}
+#vper{flex-wrap:wrap}#vper button{flex:1 0 22%;font-size:13px}
 </style>
 </head>
 <body>
 <main>
 <div class="brand"><b>Fluxo AI</b><span>Cada Kz sob controlo</span><button id="th" aria-label="Tema">🌓</button></div>
-<div class="tabs" id="tabs"><button data-v="hoje" class="on">Hoje</button><button data-v="painel">Painel</button><button data-v="camp">📣 Campanhas</button><button data-v="despesas">Caixa</button><button data-v="ia">🤖 IA</button><button data-v="mais">Mais</button></div>
+<div class="tabs" id="tabs"><button data-v="hoje" class="on">Hoje</button><button data-v="vend">🏆 Vendas</button><button data-v="painel">Painel</button><button data-v="camp">📣 Campanhas</button><button data-v="despesas">Caixa</button><button data-v="ia">🤖 IA</button><button data-v="mais">Mais</button></div>
 
 <div class="v on" id="v-hoje">
 <div class="nav"><button id="prev" aria-label="Dia anterior">‹</button><input type="date" id="date"><button id="next" aria-label="Dia seguinte">›</button></div>
@@ -158,6 +159,13 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 <div class="row"><button class="add" id="dsave">Guardar despesa</button></div></section>
 <section><h2>Por categoria (este mês)</h2><div class="scroll" id="dcat2"></div></section>
 <section><h2>Movimentos do mês</h2><ul id="dlist"></ul></section>
+</div>
+
+<div class="v" id="v-vend">
+<div class="seg" id="vper" style="margin-top:4px"><button data-q="hoje">Hoje</button><button data-q="ontem">Ontem</button><button data-q="7" class="on">7 dias</button><button data-q="30">30 dias</button><button data-q="m">Este mês</button><button data-q="mp">Mês passado</button><button data-q="all">Tudo</button></div>
+<div class="tri" id="vbig"></div>
+<section style="margin-top:14px"><h2>Produtos mais vendidos</h2><div id="vrank"></div></section>
+<section><h2>Últimas vendas aprovadas</h2><ul id="vlast"></ul></section>
 </div>
 
 <div class="v" id="v-camp">
@@ -213,7 +221,7 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 <div class="row"><button class="add g" id="rm">Apagar tudo</button></div>
 <p class="mute" id="msg"></p></section>
 </div>
-<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 27</p>
+<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 28</p>
 </main>
 <div id="nt"></div>
 <script>
@@ -377,8 +385,8 @@ function renderMais(){if(!$("fee").value&&cfg.fee)$("fee").value=cfg.fee;if(!$("
  var dm=new Date(+t.slice(0,4),+t.slice(5,7),0).getDate(),dia=+t.slice(8),pj=l/dia*dm,pc=Math.max(0,Math.min(100,l/cfg.goal*100));
  $("gp").innerHTML='<b class="'+(l>=0?"pos":"neg")+'">'+kz(l)+'</b> de '+kz(cfg.goal)+' ('+Math.round(pc)+'%)<div class="prog"><i style="width:'+pc+'%"></i></div><p class="mute" style="margin:0">Ao ritmo atual, fechas o mês com cerca de '+kz(pj)+'.</p>';
 }
-function render(){renderGoal();renderHoje();renderPainel();renderDesp();renderMais();renderCmp();renderPend()}
-$("tabs").onclick=function(e){var v=e.target.dataset.v;if(!v)return;[].forEach.call($("tabs").children,function(b){b.classList.toggle("on",b.dataset.v===v)});["hoje","painel","camp","despesas","ia","mais"].forEach(function(k){$("v-"+k).classList.toggle("on",k===v)});render()};
+function render(){renderGoal();renderHoje();renderPainel();renderDesp();renderMais();renderCmp();renderVend();renderPend()}
+$("tabs").onclick=function(e){var v=e.target.dataset.v;if(!v)return;[].forEach.call($("tabs").children,function(b){b.classList.toggle("on",b.dataset.v===v)});["hoje","vend","painel","camp","despesas","ia","mais"].forEach(function(k){$("v-"+k).classList.toggle("on",k===v)});render()};
 $("seg").onclick=function(e){var t=e.target.dataset.t;if(!t)return;type=t;[].forEach.call($("seg").children,function(b){b.classList.toggle("on",b.dataset.t===t)});renderHoje()};
 $("per").onclick=function(e){var p=e.target.dataset.p;if(!p)return;per=p;[].forEach.call($("per").children,function(b){b.classList.toggle("on",b.dataset.p===p)});renderPainel()};
 $("save").onclick=function(){var L0=calc(on(cur),1).l,v=parseFloat($("amt").value),u=0,r=0;if(!(v>0)){$("amt").focus();return}if(type==="anuncio"&&mo==="USD"){r=fxr();u=v;v=u*r}
@@ -405,6 +413,12 @@ $("ai").onclick=function(){var R=range(),c=calc(R,ri().d),r0=ri(),L=["Analisa os
 $("ab").onclick=function(){var q=$("aq").value.trim();if(!q)return;var k=wsec();if(!k){$("ar").textContent="Liga primeiro as vendas automáticas em Mais (mesma palavra-passe).";return}window.AIASK=1;$("ai").onclick();$("ar").textContent="A pensar…";fetch(AIURL,{method:"POST",headers:{"x-k":k,"Content-Type":"application/json"},body:JSON.stringify({pergunta:q,contexto:AIT.split("\n").slice(1).join("\n"),hoje:today()})}).then(function(r){if(!r.ok)throw 1;return r.json()}).then(showAI).catch(function(){$("ar").textContent="Não consegui falar com a IA. Confirma a função ia no Supabase."})};
 $("mic").onclick=function(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Usa o microfone do teclado 🎙️");$("aq").focus();return}var r=new SR();r.lang="pt-PT";r.interimResults=false;r.onresult=function(e){$("aq").value=e.results[0][0].transcript;$("ab").click()};r.onerror=function(){toast("Não ouvi. Usa o microfone do teclado 🎙️")};r.onend=function(){$("mic").textContent="🎤"};$("mic").textContent="🔴";try{r.start()}catch(e){$("mic").textContent="🎤"}};
 $("cai").onclick=function(){var k=wsec(),c=$("car");c.style.display="block";if(!k){c.textContent="Liga primeiro as vendas automáticas em Mais.";return}c.textContent="A analisar…";fetch(AIURL,{method:"POST",headers:{"x-k":k,"Content-Type":"application/json"},body:JSON.stringify({pergunta:"Analisa o meu caixa de despesas e ativos: onde gasto mais, o que posso cortar e como está o saldo. Dá 3 ações práticas. Não proponhas registos (acoes vazia).",contexto:caixaTxt(),hoje:today()})}).then(function(r){if(!r.ok)throw 1;return r.json()}).then(function(j){c.textContent=j.resposta||j.texto||"Sem resposta."}).catch(function(){c.textContent="Não consegui falar com a IA."})};
+var perV="7";
+function rangeP(q){var o=per;per=q;var r=ri();per=o;return data.filter(function(x){return x.date>=r.a&&x.date<=r.b})}
+function renderVend(){var R=rangeP(perV).filter(function(x){return x.type==="venda"}),C=calc(R,0),g=grp(R,"p");g.sort(function(a,b){return b.c.n-a.c.n||b.c.f-a.c.f});var top=g[0],mx=top?top.c.n:1;
+ $("vbig").innerHTML=bc("blk","Vendas aprovadas",C.n+" · "+kz(C.f),"","g")+bc("blk","Produto que mais vende",top?esc(top.n):"–",top?' <span style="font-size:15px;font-weight:400;opacity:.8">('+top.c.n+" vendas)</span>":"","w");
+ $("vrank").innerHTML=g.length?g.map(function(r,i){var pc=C.n?Math.round(r.c.n/C.n*100):0;return'<div class="k" style="margin-top:8px"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"")+esc(r.n)+"</b><span>"+r.c.n+' vendas</span></div><div class="prog"><i style="width:'+(r.c.n/mx*100)+'%"></i></div><small style="display:block;color:var(--mute)">'+kz(r.c.f)+" · "+pc+"% das vendas · ticket médio "+kz(r.c.n?r.c.f/r.c.n:0)+"</small></div>"}).join(""):'<p class="empty">Sem vendas neste período.</p>';
+ var ul=$("vlast");ul.innerHTML="";R.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}).slice(0,20).forEach(function(x){var li=document.createElement("li"),d=document.createElement("div");d.innerHTML='<b class="pos"></b><span class="t"></span>';d.querySelector("b").textContent="+ "+kz(x.amount);d.querySelector(".t").textContent=x.date.slice(8)+"/"+x.date.slice(5,7)+" · "+(x.p||"Sem produto")+(x.c?" · "+x.c:"")+(/^wh_/.test(String(x.id))?" · automática":"");li.appendChild(d);ul.appendChild(li)});if(!R.length)ul.innerHTML='<li class="empty">Sem vendas neste período.</li>'}
 var perC="7";
 function rangeC(){var o=per;per=perC;var r=ri();per=o;return data.filter(function(x){return x.date>=r.a&&x.date<=r.b})}
 function renderCmp(){var el=$("cmp"),L=cfg.camps||[],R=rangeC(),t=today();$("pc").innerHTML=tbl(grp(R.filter(function(x){return x.c}),"c"));
@@ -413,12 +427,12 @@ function renderCmp(){var el=$("cmp"),L=cfg.camps||[],R=rangeC(),t=today();$("pc"
  L.forEach(function(c,i){
   var P=calc(R.filter(function(x){return x.c===c.nome}),0),ad=data.filter(function(x){return x.date===t&&x.type==="anuncio"&&x.c===c.nome}).reduce(function(a,x){return a+(x.usd||x.amount/fxr())},0),pc=c.orc>0?Math.min(100,ad/c.orc*100):0,d=document.createElement("div");
   d.className="k";d.style.marginTop="8px";
-  d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b></b><span></span></div><small></small>'+(c.orc>0?'<div class="prog"><i style="width:'+pc+'%"></i></div><small id="bg'+i+'"></small>':"")+'<div class="row" style="margin-top:8px"><button class="add g" data-a="t"></button><button class="add g" data-a="d" style="flex:0 0 auto" aria-label="Apagar campanha">🗑</button></div>';
+  d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><b></b><span></span></div><small></small>'+(c.orc>0?'<div class="prog"><i style="width:'+pc+'%"></i></div><small id="bg'+i+'"></small>':"")+'<div class="row" style="margin-top:8px"><input class="f gi" type="number" inputmode="decimal" placeholder="Registar gasto (USD)"><button class="add" data-a="g" style="flex:0 0 auto">+ Gasto</button></div><div class="row" style="margin-top:8px"><button class="add g" data-a="t"></button><button class="add g" data-a="d" style="flex:0 0 auto" aria-label="Apagar campanha">🗑</button></div>';
   d.querySelector("b").textContent=c.nome;d.querySelector("span").textContent=c.on===false?"⏸ Pausada":"🟢 Ativa";
   d.querySelectorAll("small")[0].textContent=(c.prod?c.prod+" · ":"")+kz(P.a)+" gasto · "+P.n+" vendas · ROAS "+roas(P)+" · lucro "+kz(P.l);
   if(c.orc>0)d.querySelectorAll("small")[1].textContent="Hoje: $"+ad.toFixed(2)+" de $"+c.orc+" ("+Math.round(pc)+"%)";
   d.querySelector('[data-a="t"]').textContent=c.on===false?"▶ Ativar":"⏸ Pausar";
-  d.querySelectorAll("button").forEach(function(b){b.onclick=function(){if(b.dataset.a==="t")c.on=(c.on===false);else cfg.camps.splice(i,1);save();render()}});
+  d.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;if(a==="g"){var v=parseFloat(d.querySelector(".gi").value);if(!(v>0)){d.querySelector(".gi").focus();return}var r=fxr();data.push({id:Date.now()+Math.random(),date:today(),type:"anuncio",amount:v*r,usd:v,rate:r,p:c.prod||"",c:c.nome,note:""});save();render();toast(vary("anuncio",{v:"$"+v}));return}if(a==="t")c.on=(c.on===false);else cfg.camps.splice(i,1);save();render()}});
   el.appendChild(d)})}
 var MURL="https://nqtfgtvonqkdxxapidfg.supabase.co/functions/v1/meta";
 function msync(){var k=wsec();if(!k||!cfg.meta)return;
@@ -452,6 +466,7 @@ $("mbtn").onclick=function(){if(!wsec()){$("mst").textContent="Liga primeiro as 
 $("cper").onclick=function(e){var q=e.target.dataset.q;if(!q)return;perC=q;[].forEach.call($("cper").children,function(b){b.classList.toggle("on",b.dataset.q===q)});renderCmp()};
 var tIdx=0;
 $("tn").onclick=function(){var L=[function(){toast(vary("auto",{v:kz(5500)}),{som:1});boom()},function(){toast(vary("anuncio",{v:"$12.50"}))},function(){toast(vary("despesa",{v:kz(3000)}))},function(){toast(vary("ativo",{v:kz(20000)}))},function(){toast(vary("marco",{v:kz(100000)}),{som:1});boom()}];L[tIdx%L.length]();tIdx++};
+$("vper").onclick=function(e){var q=e.target.dataset.q;if(!q)return;perV=q;[].forEach.call($("vper").children,function(b){b.classList.toggle("on",b.dataset.q===q)});renderVend()};
 $("th").onclick=function(){var d=document.documentElement,n=d.dataset.theme==="light"?"dark":"light";d.dataset.theme=n;try{localStorage.setItem("fluxo-th",n)}catch(e){}};
 $("pf").onchange=renderPainel;
 $("rep").onclick=function(){var l=data.filter(function(x){return String(x.id).indexOf("wh_")!==0&&x.type!=="despesa"&&x.type!=="ativo"}).pop();if(!l)return;edit(l);ed=null;toast("Último registo copiado: ajusta e guarda")};
