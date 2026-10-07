@@ -212,7 +212,7 @@ svg circle,svg polygon{animation:fi .6s 1s both}@keyframes fi{from{opacity:0}}
 <div class="row"><button class="add g" id="rm">Apagar tudo</button></div>
 <p class="mute" id="msg"></p></section>
 </div>
-<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 25</p>
+<p class="mute" style="text-align:center;font-size:12px;margin:24px 0 0">Fluxo AI · versão 26</p>
 </main>
 <div id="nt"></div>
 <script>
@@ -434,7 +434,7 @@ function msync(){var k=wsec();if(!k||!cfg.meta)return;
   if(ch){save();render()}
   $("mst").textContent=bad?"A conta Meta está em "+bad+". Só USD é suportado.":"Meta ligada ✅ "+(j.campanhas||[]).length+" campanhas"}).catch(function(){$("mst").textContent="Meta: não consegui ler. Confirma a função meta e o token."})}
 var AC,snT;
-function snd(){try{var a=new Audio("som.mp3");a.play()}catch(e){}}
+function snd(cb){try{var a=new Audio("som.mp3");a.volume=1;a.onerror=function(){if(cb)cb("Não encontrei o ficheiro som.mp3 no site. Envia-o para o GitHub.")};var p=a.play();if(p&&p.catch)p.catch(function(e){if(cb)cb("O iPhone bloqueou o som ("+(e&&e.name||"erro")+"). Verifica o volume e o modo silencioso.")});if(cb&&p&&p.then)p.then(function(){cb("O som tocou ✅")})}catch(e){if(cb)cb("Erro ao tocar o som.")}}
 function snap(){if(!wsec())return;clearTimeout(snT);snT=setTimeout(function(){var t=today(),c=calc(data.filter(function(x){return x.date===t&&(x.type==="venda"||x.type==="anuncio")}),0);fetch(PURL+"?acao=resumo",{method:"POST",headers:{"x-k":wsec(),"Content-Type":"application/json"},body:JSON.stringify({d:t,l:c.l,r:c.a>0?c.f/c.a:0,v:c.n,f:c.f,a:c.a})}).catch(function(){})},3000)}
 var PURL="https://nqtfgtvonqkdxxapidfg.supabase.co/functions/v1/push";
 function b2u(s){var p="=".repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(b,function(c){return c.charCodeAt(0)})}
@@ -457,7 +457,7 @@ data=rd(KEY,[]);cfg=rd(CK,{goal:0});if(!cfg.f799){cfg.fee=7.99;cfg.f799=1;wr(CK,
 $("wsy").onclick=function(){var v=$("wsec").value.trim();if(v){try{localStorage.setItem("fluxo-wsec",v)}catch(e){}}$("wsec").value="";$("wst").textContent="A ligar…";sync(1)};
 if(wsec())$("wst").textContent="A ligar…";
 setInterval(function(){sync();msync()},60000);document.addEventListener("visibilitychange",function(){if(!document.hidden){sync();msync()}});sync(1);msync();
-$("sn").onclick=snd;snap();
+$("sn").onclick=function(){$("ps").textContent="A tocar…";snd(function(m){$("ps").textContent=m})};snap();
 </script>
 </body>
 </html>
